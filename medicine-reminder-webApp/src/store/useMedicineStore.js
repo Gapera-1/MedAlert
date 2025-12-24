@@ -1,6 +1,7 @@
+// src/store/useMedicineStore.js
 import { create } from 'zustand';
 
-const useMedicineStore = create((set, get) => ({
+const useMedicineStore = create((set) => ({
   medicines: JSON.parse(localStorage.getItem('medicines')) || [],
 
   addMedicine: (medicine) => {
@@ -9,13 +10,13 @@ const useMedicineStore = create((set, get) => ({
         ...state.medicines,
         {
           ...medicine,
-          id: Date.now(),                // ensure unique ID
-          startDate: new Date().toDateString(),  // needed for duration
-          lastNotified: {},
+          id: Date.now(),
+          startDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD
           takenTimes: {},
+          lastNotified: {},
+          completed: false,
         },
       ];
-
       localStorage.setItem('medicines', JSON.stringify(newMeds));
       return { medicines: newMeds };
     });
@@ -33,15 +34,27 @@ const useMedicineStore = create((set, get) => ({
     set((state) => {
       const newMeds = state.medicines.map((m) =>
         m.id === id
-          ? { ...m, takenTimes: { ...m.takenTimes, [time]: true } }
+          ? {
+              ...m,
+              takenTimes: { ...m.takenTimes, [time]: true },
+            }
           : m
       );
-
       localStorage.setItem('medicines', JSON.stringify(newMeds));
       return { medicines: newMeds };
     });
 
     window.speechSynthesis.cancel();
+  },
+
+  markCompleted: (id) => {
+    set((state) => {
+      const newMeds = state.medicines.map((m) =>
+        m.id === id ? { ...m, completed: true } : m
+      );
+      localStorage.setItem('medicines', JSON.stringify(newMeds));
+      return { medicines: newMeds };
+    });
   },
 }));
 
