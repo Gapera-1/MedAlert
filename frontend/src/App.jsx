@@ -8,17 +8,8 @@ import ContraIndicationsPage from "./pages/ContraIndicationsPage";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // ✅ Safe auto-login check
-  useEffect(() => {
-    const loggedIn = localStorage.getItem("loggedIn");
-    const savedUser = JSON.parse(localStorage.getItem("user"));
-
-    if (loggedIn === "true" && savedUser?.username && savedUser?.password) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, []);
+  // Authentication is now handled by backend - no localStorage needed
+  // User will need to login on each session (or implement token-based auth later)
 
   return (
     <Router>

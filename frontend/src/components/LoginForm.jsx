@@ -3,9 +3,11 @@ import React from "react";
 function LoginForm({
   username,
   password,
+  email,
   error,
   setUsername,
   setPassword,
+  setEmail,
   handleLogin,
   setIsSignup,
 }) {
@@ -15,10 +17,18 @@ function LoginForm({
 
       <input
         type="text"
-        placeholder="Username"
+        placeholder="Username or Email"
         className="border px-3 py-2 rounded"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
+      />
+
+      <input
+        type="email"
+        placeholder="Email (optional)"
+        className="border px-3 py-2 rounded"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
       />
 
       <input

@@ -1,10 +1,39 @@
+import { useState } from 'react';
 import useMedicineStore from '../store/useMedicineStore';
+import useMessageStore from '../store/useMessageStore';
 import { Link } from "react-router-dom";
 
 function MedicineList() {
   const medicines = useMedicineStore((state) => state.medicines);
   const removeMedicine = useMedicineStore((state) => state.removeMedicine);
   const markTaken = useMedicineStore((state) => state.markTaken);
+  const setMessage = useMessageStore((state) => state.setMessage);
+  const [processingId, setProcessingId] = useState(null);
+
+  const handleRemove = async (id) => {
+    if (window.confirm('Are you sure you want to remove this medicine?')) {
+      setProcessingId(id);
+      try {
+        await removeMedicine(id);
+        setMessage('Medicine removed successfully', 'success');
+      } catch (error) {
+        setMessage(`Error removing medicine: ${error.message}`, 'error');
+      } finally {
+        setProcessingId(null);
+      }
+    }
+  };
+
+  const handleMarkTaken = async (id, time) => {
+    setProcessingId(`${id}-${time}`);
+    try {
+      await markTaken(id, time);
+    } catch (error) {
+      setMessage(`Error marking as taken: ${error.message}`, 'error');
+    } finally {
+      setProcessingId(null);
+    }
+  };
 
   return (
     <div className="flex flex-col p-4 bg-gray-50 rounded h-[400px] overflow-y-auto ">
@@ -24,10 +53,11 @@ function MedicineList() {
                     <span className="text-green-600 font-bold">Taken ✅</span>
                   ) : (
                     <button
-                      onClick={() => markTaken(med.id, time)}
-                      className="bg-blue-600 text-white px-2 py-1 rounded"
+                      onClick={() => handleMarkTaken(med.id, time)}
+                      disabled={processingId === `${med.id}-${time}`}
+                      className="bg-blue-600 text-white px-2 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Mark as Taken
+                      {processingId === `${med.id}-${time}` ? 'Processing...' : 'Mark as Taken'}
                     </button>
                   )}
                 </div>
@@ -43,10 +73,11 @@ function MedicineList() {
             </Link>
 
             <button
-              onClick={() => removeMedicine(med.id)}
-              className="flex flex-row bg-red-600 text-white p-1 rounded mt-2"
+              onClick={() => handleRemove(med.id)}
+              disabled={processingId === med.id}
+              className="flex flex-row bg-red-600 text-white p-1 rounded mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Remove Medicine
+              {processingId === med.id ? 'Removing...' : 'Remove Medicine'}
             </button>
           </li>
         ))}

@@ -29,7 +29,9 @@ function ReminderChecker() {
             (now - start) / (1000 * 60 * 60 * 24)
           );
           if (daysPassed >= med.duration) {
-            useMedicineStore.getState().removeMedicine(med.id);
+            useMedicineStore.getState().removeMedicine(med.id).catch((err) => {
+              console.error('Error auto-removing expired medicine:', err);
+            });
             return;
           }
         }

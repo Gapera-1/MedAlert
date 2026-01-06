@@ -16,7 +16,7 @@ function MedicineForm() {
     return /^([01]\d|2[0-3]):([0-5]\d)$/.test(time);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!name || !times || !posology || !duration) {
@@ -34,20 +34,23 @@ function MedicineForm() {
       }
     }
 
-    addMedicine({
-      id: Date.now(),
-      name,
-      times: timeArray,
-      posology,
-      duration: Number(duration),
-    });
+    try {
+      await addMedicine({
+        name,
+        times: timeArray,
+        posology,
+        duration: Number(duration),
+      });
 
-    setMessage(`Medicine ${name} added!`, 'success');
+      setMessage(`Medicine ${name} added!`, 'success');
 
-    setName('');
-    setTimes('');
-    setPosology('');
-    setDuration('');
+      setName('');
+      setTimes('');
+      setPosology('');
+      setDuration('');
+    } catch (error) {
+      setMessage(`Error adding medicine: ${error.message}`, 'error');
+    }
   };
 
   return (
